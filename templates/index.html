@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drone Delivery Route Optimizer | DAA Mini-Project</title>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Vis.js for Interactive Network Graph Rendering -->
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <!-- Chart.js for Performance Benchmark Plotting -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- Header Banner -->
+    <header class="header-banner">
+        <div class="header-title">
+            <h1>DRONE DELIVERY ROUTE OPTIMIZER</h1>
+            <p>Design and Analysis of Algorithms (DAA) Mini-Project • Manual Dijkstra Algorithm</p>
+        </div>
+        <div class="badge-tag">Academic Mini-Project</div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs-container">
+        <button class="nav-tab active" onclick="switchTab('optimizer')">🚁 Route Optimizer & Graph</button>
+        <button class="nav-tab" onclick="switchTab('steps')">📊 Dijkstra Steps Trace</button>
+        <button class="nav-tab" onclick="switchTab('editor')">🛠 Manage Graph & Distances</button>
+        <button class="nav-tab" onclick="switchTab('theory')">📚 Complexity & DAA Theory</button>
+        <button class="nav-tab" onclick="switchTab('performance')">⏱ Performance Analysis</button>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="main-wrapper">
+
+        <!-- TAB 1: ROUTE OPTIMIZER & GRAPH -->
+        <section id="tab-optimizer" class="tab-content active">
+            <div class="grid-dashboard">
+                <!-- Left Panel: Controls & Results -->
+                <div class="left-panel">
+                    
+                    <!-- Controls Card -->
+                    <div class="card">
+                        <div class="card-title">Route & Drone Parameters</div>
+                        
+                        <div class="form-group">
+                            <label for="select-source">Source Location:</label>
+                            <select id="select-source" class="form-control"></select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="select-dest">Destination Location:</label>
+                            <select id="select-dest" class="form-control"></select>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="input-battery">Battery Cap (%):</label>
+                                <input type="number" id="input-battery" class="form-control" value="100" min="1" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label for="input-burn">Burn Rate (%/km):</label>
+                                <input type="number" id="input-burn" class="form-control" value="5.0" step="0.1" min="0.1">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="input-speed">Drone Speed (km/h):</label>
+                            <input type="number" id="input-speed" class="form-control" value="30" min="1">
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="optimizeRoute()">⚡ Find Optimal Route</button>
+                            <button class="btn btn-secondary" onclick="resetDefaults()">🔄 Reset</button>
+                        </div>
+                    </div>
+
+                    <!-- Results Card -->
+                    <div class="card">
+                        <div class="card-title">Optimal Route Results</div>
+                        
+                        <div id="status-badge" class="status-badge status-neutral">Status: Ready</div>
+
+                        <div class="path-box" id="res-path">Path: -</div>
+
+                        <div class="result-item">
+                            <span>Total Distance:</span>
+                            <span id="res-dist">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Estimated Flight Time:</span>
+                            <span id="res-time">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Battery Required:</span>
+                            <span id="res-battery-req">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Remaining Battery:</span>
+                            <span id="res-battery-rem">-</span>
+                        </div>
+
+                        <p style="font-size: 0.75rem; color: #64748b; margin-top: 10px; font-style: italic;">
+                            * Note: Educational simulation model (linear energy consumption).
+                        </p>
+
+                        <!-- Alternatives Comparison -->
+                        <div style="margin-top: 15px;">
+                            <strong style="font-size: 0.9rem; color: var(--primary);">Route Alternatives Comparison:</strong>
+                            <div id="alt-routes-container" style="margin-top: 8px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel: Graph Visualization -->
+                <div class="right-panel">
+                    <div class="card" style="padding: 15px;">
+                        <div class="card-title">Dynamic Drone Network Graph</div>
+                        <div class="graph-canvas-box">
+                            <div id="canvas-graph"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: DIJKSTRA STEP-BY-STEP TRACE -->
+        <section id="tab-steps" class="tab-content">
+            <div class="card">
+                <div class="card-title">Dijkstra Algorithm Execution Steps (Step-by-Step Trace)</div>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">
+                    This table demonstrates the step-by-step internal execution of manual Dijkstra's algorithm using a Priority Queue (Min-Heap).
+                </p>
+
+                <div class="table-container">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Step #</th>
+                                <th>Current Node (u)</th>
+                                <th>Neighbor Node (v)</th>
+                                <th>Edge Weight (w)</th>
+                                <th>Prev Dist d[v]</th>
+                                <th>New Dist d[v]</th>
+                                <th>Algorithm Action / Decision</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-steps">
+                            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">No trace logs yet. Click 'Find Optimal Route' to execute Dijkstra.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: GRAPH EDITOR & MANAGEMENT -->
+        <section id="tab-editor" class="tab-content">
+            <div class="grid-dashboard">
+                <div class="left-panel">
+                    <!-- Node Manager -->
+                    <div class="card">
+                        <div class="card-title">Manage Nodes</div>
+                        <div class="form-group">
+                            <label for="edit-node-name">Node Name:</label>
+                            <input type="text" id="edit-node-name" class="form-control" placeholder="e.g. Customer G">
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="handleAddNode()">➕ Add Node</button>
+                            <button class="btn btn-danger" onclick="handleRemoveNode()">❌ Remove Node</button>
+                        </div>
+                    </div>
+
+                    <!-- Edge Manager -->
+                    <div class="card">
+                        <div class="card-title">Manage Edges & Distances</div>
+                        <div class="form-group">
+                            <label for="edit-edge-u">Node 1:</label>
+                            <select id="edit-edge-u" class="form-control"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-edge-v">Node 2:</label>
+                            <select id="edit-edge-v" class="form-control"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-edge-w">Distance (km):</label>
+                            <input type="number" id="edit-edge-w" class="form-control" value="5.0" step="0.1" min="0.1">
+                        </div>
+                        <div class="btn-group" style="flex-direction: column;">
+                            <button class="btn btn-primary" onclick="handleAddEdge()">🔗 Add / Update Edge</button>
+                            <button class="btn btn-secondary" onclick="handleRemoveEdge()">✂ Remove Edge</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel: Edges Table -->
+                <div class="right-panel">
+                    <div class="card">
+                        <div class="card-title">Current Flight Connections (Edges)</div>
+                        <div class="table-container">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Location 1</th>
+                                        <th>Location 2</th>
+                                        <th>Distance (km)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-edges"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: COMPLEXITY & DAA THEORY -->
+        <section id="tab-theory" class="tab-content">
+            <div class="theory-box">
+                <h1 style="color: var(--primary); font-size: 1.5rem; margin-bottom: 10px;">Design and Analysis of Algorithms (DAA) Report</h1>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">Project Title: <strong>Design and Analysis of an Optimized Drone Delivery Route Using Graph Algorithms</strong></p>
+                
+                <h2>1. Problem Formulation & Graph Modeling</h2>
+                <p>
+                    The drone delivery network is represented as a <strong>Weighted Undirected Graph G = (V, E)</strong>:
+                </p>
+                <ul>
+                    <li><strong>Vertices (V):</strong> Represent physical physical locations including the dispatch <code>Warehouse</code>, <code>Customer A-F</code> destinations, and <code>Charging Station</code> waypoints.</li>
+                    <li><strong>Edges (E):</strong> Represent navigable flight paths connecting two locations.</li>
+                    <li><strong>Edge Weights w(u, v):</strong> Non-negative Euclidean distance in kilometers (km) between location u and location v.</li>
+                </ul>
+
+                <h2>2. Dijkstra's Shortest Path Algorithm (Greedy Paradigm)</h2>
+                <p>
+                    Dijkstra's algorithm employs a <strong>Greedy Choice Strategy</strong> to compute single-source shortest paths on non-negatively weighted graphs. At each step, it selects the unvisited node with the smallest tentative distance.
+                </p>
+                
+                <h3>Edge Relaxation Condition:</h3>
+                <pre>if d[u] + w(u, v) < d[v]:
+    d[v] = d[u] + w(u, v)
+    pi[v] = u</pre>
+
+                <h2>3. Algorithm Complexity Analysis</h2>
+                <ul>
+                    <li><strong>Time Complexity: O((V + E) log V)</strong>
+                        <ul>
+                            <li>Min-Heap Extract-Min is called V times: O(V log V)</li>
+                            <li>Edge Relaxation / Push operations executed at most E times: O(E log V)</li>
+                            <li>Total Time Complexity = <code>O((V + E) log V)</code> (simplifies to <code>O(E log V)</code> for connected graphs).</li>
+                        </ul>
+                    </li>
+                    <li><strong>Space Complexity: O(V + E)</strong>
+                        <ul>
+                            <li>Adjacency List storage: <code>O(V + E)</code></li>
+                            <li>Priority Queue & distance array memory: <code>O(V)</code></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h2>4. Battery Feasibility Model</h2>
+                <p>
+                    Energy consumption is calculated linearly as <code>Battery Required = Distance × Burn Rate (%/km)</code>.
+                    A route is declared <code>✓ Route Feasible</code> if available battery capacity satisfies <code>Battery Available >= Battery Required</code>.
+                </p>
+            </div>
+        </section>
+
+        <!-- TAB 5: PERFORMANCE BENCHMARK -->
+        <section id="tab-performance" class="tab-content">
+            <div class="grid-dashboard">
+                <div class="left-panel">
+                    <div class="card">
+                        <div class="card-title">Performance Testing</div>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 15px;">
+                            Measures empirical execution times of manual Dijkstra across connected random graphs of size V = 10, 25, 50, 100, 200 nodes.
+                        </p>
+                        <button class="btn btn-primary" onclick="runBenchmark()" style="width: 100%;">⚡ Run Performance Benchmark</button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Measured Timing Results</div>
+                        <div class="table-container">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nodes (V)</th>
+                                        <th>Edges (E)</th>
+                                        <th>Time (ms)</th>
+                                        <th>Distance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-bench">
+                                    <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Click 'Run Performance Benchmark' to execute.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="right-panel">
+                    <div class="card">
+                        <div class="card-title">Execution Time Scaling O((V+E) log V)</div>
+                        <div class="chart-box">
+                            <canvas id="chart-benchmark"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Custom Frontend JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
