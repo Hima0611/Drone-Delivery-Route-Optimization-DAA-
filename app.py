@@ -8,17 +8,25 @@ step-by-step algorithm trace, dynamic graph editing, complexity analysis, and pe
 """
 
 import sys
-import tkinter as tk
-from tkinter import ttk, messagebox
-import matplotlib
-matplotlib.use("TkAgg")
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+
+try:
+    import tkinter as tk
+    from tkinter import ttk, messagebox
+    import matplotlib
+    matplotlib.use("TkAgg")
+    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+    HAS_TK = True
+except (ImportError, ModuleNotFoundError):
+    HAS_TK = False
+
 import matplotlib.pyplot as plt
 
 from graph_data import DeliveryGraph
 from dijkstra import dijkstra_shortest_path, find_alternative_paths
 from visualization import draw_graph
 from performance import run_performance_benchmark
+from web_app import app  # Fallback export so 'gunicorn app:app' works seamlessly on Render
+
 
 class DroneDeliveryApp:
     def __init__(self, root):
@@ -732,9 +740,13 @@ PROJECT TITLE:
 
 
 def main():
-    root = tk.Tk()
-    app = DroneDeliveryApp(root)
-    root.mainloop()
+    if HAS_TK:
+        root = tk.Tk()
+        app = DroneDeliveryApp(root)
+        root.mainloop()
+    else:
+        print("Tkinter GUI is not available in headless environment. Use web_app.py for web deployment.")
 
 if __name__ == "__main__":
     main()
+
