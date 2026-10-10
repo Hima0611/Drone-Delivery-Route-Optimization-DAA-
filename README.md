@@ -1,10 +1,10 @@
 # Design and Analysis of an Optimized Drone Delivery Route Using Graph Algorithms
 
-**Academic DAA Mini-Project**  
-**Course:** Design and Analysis of Algorithms (DAA)  
+**Autonomous Drone Flight Path & Route Optimization System**  
 🌐 **Live Working Web App**: [https://drone-delivery-route-optimization-daa.onrender.com](https://drone-delivery-route-optimization-daa.onrender.com)
 
 ---
+
 
 
 ## 1. Project Overview

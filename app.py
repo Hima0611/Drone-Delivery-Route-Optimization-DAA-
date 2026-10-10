@@ -31,7 +31,7 @@ from web_app import app  # Fallback export so 'gunicorn app:app' works seamlessl
 class DroneDeliveryApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Drone Delivery Route Optimizer | DAA Mini-Project")
+        self.root.title("Drone Delivery Route Optimizer")
         self.root.geometry("1280x820")
         self.root.minsize(1024, 720)
 
@@ -96,7 +96,7 @@ class DroneDeliveryApp:
 
         subtitle_lbl = ttk.Label(
             header_frame,
-            text="Design and Analysis of Algorithms (DAA) Mini-Project • Dijkstra's Shortest Path Optimization",
+            text="Autonomous Flight Path & Energy Optimization • Dijkstra's Shortest Path",
             style="SubHeader.TLabel"
         )
         subtitle_lbl.pack(anchor=tk.W, pady=(2, 0))
