@@ -2,8 +2,10 @@
 
 **Academic DAA Mini-Project**  
 **Course:** Design and Analysis of Algorithms (DAA)  
+🌐 **Live Working Web App**: [https://drone-delivery-route-optimization-daa.onrender.com](https://drone-delivery-route-optimization-daa.onrender.com)
 
 ---
+
 
 ## 1. Project Overview
 
@@ -180,9 +182,16 @@ drone_delivery_optimizer/
 
 ---
 
-## 10. Installation & Execution Guide
+## 10. Live Web App & Local Execution Guide
 
-### Prerequisites
+### 🌐 Live Deployment
+The web application is deployed and hosted live at:  
+👉 **[https://drone-delivery-route-optimization-daa.onrender.com](https://drone-delivery-route-optimization-daa.onrender.com)**
+
+---
+
+### Prerequisites (For Local Setup)
+
 - Python 3.8+ installed on your system.
 
 ### Step 1: Navigate to Project Directory
